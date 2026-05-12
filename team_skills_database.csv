@@ -1,0 +1,26 @@
+id,name,role,skills,load,availability
+1,Sarah Chen,Senior Frontend Developer,"React, TypeScript, Tailwind, UI/UX",4,High
+2,Marcus Johnson,Backend Engineer,"Python, Django, PostgreSQL, AWS",9,Low
+3,Elena Rodriguez,Data Scientist,"Python, TensorFlow, SQL, Tableu",2,High
+4,David Kim,DevOps Engineer,"Docker, Kubernetes, Terraform, CI/CD",6,Medium
+5,Priya Sharma,Product Designer,"Figma, Adobe XD, Prototyping, User Research",5,Medium
+6,James Wilson,QA Automation,"Selenium, Cypress, Jest, Manual Testing",3,High
+7,Amina Okoro,Backend Engineer,"Go, Microservices, Redis, Kafka",8,Low
+8,Lucas Muller,Mobile Developer,"Swift, iOS, Kotlin, Android",1,High
+9,Sophie Laurent,Marketing Specialist,"SEO, Copywriting, Google Ads, HubSpot",7,Medium
+10,Tom Baker,Fullstack Developer,"Node.js, React, MongoDB, Express",5,Medium
+11,Yuki Tanaka,Security Analyst,"Pentesting, Network Security, Compliance, SOC",4,High
+12,Liam Smith,Technical Writer,"Documentation, API Reference, Markdown, Editing",2,High
+13,Chloe Dubois,Sales Representative,"Salesforce, Cold Calling, Negotiation, CRM",10,None
+14,Noah Williams,Cloud Architect,"Azure, Cloud Migration, Cost Optimization, DNS",6,Medium
+15,Zoe Wang,HR Manager,"Recruitment, Conflict Resolution, Payroll, Training",3,High
+16,Omar Hassan,Customer Support,"Zendesk, Communication, Troubleshooting, Spanish",9,Low
+17,Emma Brown,Frontend Developer,"Vue.js, JavaScript, Sass, Web Accessibility",5,Medium
+18,Ivan Petrov,Database Administrator,"MySQL, Oracle, Query Optimization, Backups",4,High
+19,Isabella Costa,Social Media Manager,"Instagram, Content Strategy, Analytics, Canva",6,Medium
+20,Kevin Lee,Systems Administrator,"Linux, Bash Scripting, Active Directory, Hardware",7,Medium
+21,Maya Patel,AI Engineer,"NLP, PyTorch, Computer Vision, Python",3,High
+22,Leo Garcia,Financial Analyst,"Excel, Financial Modeling, Reporting, Audit",8,Low
+23,Fatima Zahra,Legal Counsel,"Contracts, IP Law, Employment Law, Compliance",2,High
+24,Ryan Cooper,Video Editor,"Premiere Pro, After Effects, Color Grading, Motion Graphics",5,Medium
+25,Grace Hopper,Junior Backend Developer,"Python, Java, Git, Algorithms",4,High
