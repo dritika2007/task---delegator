@@ -4,29 +4,34 @@ import pandas as pd
 # Page Config
 st.set_page_config(page_title="AI Task Delegator", page_icon="🎯", layout="wide")
 
-# --- DATA PERSISTENCE LAYER ---
-# We use session_state to keep the workload updates "alive" during the app session
+# --- 1. DATA PERSISTENCE & SESSION STATE ---
+# We remove @st.cache_data to ensure we always interact with the live data
 if 'df' not in st.session_state:
     try:
+        # Initial load from the CSV file
         st.session_state.df = pd.read_csv('team_skills_database.csv')
     except FileNotFoundError:
-        # Fallback if file isn't found
-        st.error("Database file 'team_skills_database.csv' not found.")
+        st.error("Database file 'team_skills_database.csv' not found. Please ensure the file exists.")
         st.stop()
 
 def delegate_task(worker_name):
-    """Increments the workload for a specific worker."""
-    # Find the row and increment load (max cap at 10)
+    """Updates the workload in session state and saves it to the CSV file."""
+    # Find the specific row index for the worker
     idx = st.session_state.df.index[st.session_state.df['name'] == worker_name].tolist()[0]
-    if st.session_state.df.at[idx, 'load'] < 10:
-        st.session_state.df.at[idx, 'load'] += 1
-        # Save back to CSV to persist changes
+    
+    current_load = st.session_state.df.at[idx, 'load']
+    
+    if current_load < 10:
+        # Update the value in the active Session State
+        st.session_state.df.at[idx, 'load'] = current_load + 1
+        
+        # Save the updated DataFrame back to the CSV file immediately
         st.session_state.df.to_csv('team_skills_database.csv', index=False)
-        st.toast(f"✅ Task delegated! {worker_name}'s workload updated.", icon="🚀")
+        st.toast(f"✅ Task delegated! {worker_name}'s workload is now {current_load + 1}/10", icon="🚀")
     else:
-        st.error(f"Cannot delegate: {worker_name} is at maximum capacity!")
+        st.error(f"Cannot delegate: {worker_name} is at maximum capacity (10/10)!")
 
-# --- TEMPLATES ---
+# --- 2. TEMPLATES ---
 common_tasks = {
     "Custom (Type your own)": "",
     "Frontend Update": "Update the landing page UI using React and Tailwind. Fix the mobile responsiveness issues.",
@@ -45,11 +50,12 @@ col1, col2 = st.columns([1.5, 2])
 
 with col1:
     st.subheader("Step 1: Define the Task")
-    selected_template = st.selectbox("Template:", options=list(common_tasks.keys()))
+    selected_template = st.selectbox("Choose a template:", options=list(common_tasks.keys()))
     
     task_input = st.text_area(
         "Describe the 'Upar se' task:",
         value=common_tasks[selected_template],
+        placeholder="Enter task details...",
         height=150
     )
     
@@ -59,24 +65,30 @@ with col2:
     st.subheader("Step 2: Recommended Talent")
     
     if find_button and task_input:
-        # --- IMPROVED SCORING LOGIC ---
+        # --- 3. SCORING LOGIC (Using Session State Data) ---
         def calculate_score(row):
             score = 0
+            # Ensure skills are treated as strings and handled properly
             worker_skills = [s.strip().lower() for s in str(row['skills']).split(',')]
+            
+            # Math: Si * ws (Skill match * 10)
             for skill in worker_skills:
                 if skill in task_input.lower():
                     score += 10
             
+            # Math: Ab (Availability Bonus)
             avail_map = {"High": 5, "Medium": 2, "Low": 0, "None": -10}
             score += avail_map.get(row['availability'], 0)
-            score -= (row['load'] * 0.5) # Penalty for high workload
+            
+            # Math: - (L * wl) -> Load * 0.5 penalty
+            score -= (row['load'] * 0.5)
             return score
 
-        # Apply scoring to current session state data
+        # Create a temporary scored dataframe from the current state
         df_scored = st.session_state.df.copy()
         df_scored['match_score'] = df_scored.apply(calculate_score, axis=1)
         
-        # Suggest Top 3 workers to optimize distribution
+        # Get Top 3 matches
         top_matches = df_scored.sort_values(by='match_score', ascending=False).head(3)
 
         for _, worker in top_matches.iterrows():
@@ -89,19 +101,22 @@ with col2:
                     
                     # Workload Visual
                     load_val = int(worker['load'])
-                    st.progress(load_val * 10)
+                    st.progress(min(load_val * 10, 100)) # Ensure progress doesn't exceed 100
                     st.write(f"Workload: {load_val}/10")
                 
                 with c2:
-                    st.write("") # Padding
+                    st.write("") # Vertical alignment padding
+                    # Use a unique key for every button to avoid conflicts
                     if st.button("Delegate", key=f"btn_{worker['name']}", use_container_width=True):
                         delegate_task(worker['name'])
-                        st.rerun() # Refresh to update scores and progress bars
+                        st.rerun() # Forces the app to refresh and show the updated CSV values
+    
     elif not task_input and find_button:
         st.warning("Please define a task first.")
     else:
-        st.info("Select a task and click search to see optimized suggestions.")
+        st.info("Define a task and search to see optimized talent suggestions.")
 
-# --- PERSISTENT TEAM VIEW (Optional) ---
-with st.expander("📊 View Entire Team Load"):
-    st.dataframe(st.session_state.df, use_container_width=True)
+# --- 4. OPTIONAL: LIVE TEAM OVERVIEW ---
+with st.expander("📊 View Entire Team Current Load"):
+    # This table will update live as you click "Delegate"
+    st.table(st.session_state.df[['name', 'role', 'load', 'availability']])
